@@ -61,6 +61,16 @@ h1{overflow-wrap:break-word}
   .reserve{padding:18px}
   .back{margin-bottom:16px}
 }
+/* Apartment gallery: arrows and square previews */
+.gallery-viewer{position:relative;min-width:0;margin-bottom:20px}
+.gallery-stage{position:relative;min-width:0}
+.gal{scrollbar-width:none;-ms-overflow-style:none}
+.gal::-webkit-scrollbar{display:none}
+.gallery-viewer .thumbs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;overflow:visible}
+.gallery-viewer .thumbs button{width:clamp(28px,7vw,52px);aspect-ratio:1;border-radius:3px}
+.gallery-viewer .nav{background:rgba(255,255,255,.94);color:#15191D}
+.gallery-viewer .nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gallery-viewer .nav{padding:0}
 </style>
 </head>
 <body>
@@ -327,6 +337,77 @@ h1{overflow-wrap:break-word}
 </section>
 
 </main>
+
+<script>
+// Apartment photo viewer only.
+document.querySelectorAll('.detail .gal').forEach(track => {
+  const photos = Array.from(track.querySelectorAll('img'));
+  if (!photos.length) return;
+  const viewer = document.createElement('div');
+  viewer.className = 'gallery-viewer';
+  const stage = document.createElement('div');
+  stage.className = 'gallery-stage';
+  const hint = track.nextElementSibling;
+  track.before(viewer);
+  viewer.append(stage);
+  stage.append(track);
+  if (hint && hint.classList.contains('swipe')) hint.remove();
+  const thumbs = document.createElement('div');
+  thumbs.className = 'thumbs';
+  viewer.append(thumbs);
+  let active = 0;
+  const makeArrow = (direction, label, path) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'nav ' + direction;
+    button.setAttribute('aria-label', label);
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + path + '"/></svg>';
+    stage.append(button);
+    return button;
+  };
+  const prev = makeArrow('prev', 'Previous photo', 'M15 18l-6-6 6-6');
+  const next = makeArrow('next', 'Next photo', 'M9 18l6-6-6-6');
+  const buttons = photos.map((photo, i) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'View photo ' + (i + 1));
+    const img = document.createElement('img');
+    img.src = photo.getAttribute('src');
+    img.alt = '';
+    img.loading = 'lazy';
+    button.append(img);
+    button.addEventListener('click', () => go(i));
+    thumbs.append(button);
+    return button;
+  });
+  function update(i) {
+    active = i;
+    buttons.forEach((button, n) => {
+      button.classList.toggle('on', n === i);
+      button.setAttribute('aria-pressed', String(n === i));
+    });
+    prev.disabled = i === 0;
+    next.disabled = i === photos.length - 1;
+  }
+  function go(i) {
+    i = Math.max(0, Math.min(photos.length - 1, i));
+    track.scrollTo({left: i * track.clientWidth, behavior: 'instant'});
+    update(i);
+  }
+  prev.addEventListener('click', () => go(active - 1));
+  next.addEventListener('click', () => go(active + 1));
+  track.addEventListener('scroll', () => {
+    if (track.clientWidth) update(Math.max(0, Math.min(photos.length - 1, Math.round(track.scrollLeft / track.clientWidth))));
+  }, {passive: true});
+  track.addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      go(active + (event.key === 'ArrowRight' ? 1 : -1));
+    }
+  });
+  update(0);
+});
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
