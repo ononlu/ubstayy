@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nook — Apartments in Ulaanbaatar</title>
+<title>UB Stay — Apartments in Ulaanbaatar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
 <style>
 /* Photos in plain HTML: swipeable gallery (no JavaScript needed) */
@@ -25,23 +26,63 @@
 .flatpickr-day.flatpickr-disabled,.flatpickr-day.flatpickr-disabled:hover{color:var(--muted);opacity:.4;text-decoration:line-through;background:transparent;border-color:transparent;cursor:not-allowed}
 .flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .pay-check{justify-self:start;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-size:.88rem;cursor:pointer}
+h1{overflow-wrap:break-word}
+/* Map price tags + pop-up */
+.leaflet-container{font-family:inherit}
+.gpin-wrap .gpin{position:absolute;transform:translate(-50%,-50%);white-space:nowrap}
+.gpin-wrap.up .gpin{transform:translate(-50%,calc(-50% - 34px))}
+.maplibregl-popup-content{padding:12px;border-radius:12px}
+.maplibregl-map{font-family:inherit}
+.gpin{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 11px;font:700 .82rem/1.2 "Manrope",system-ui,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer}
+.gpin:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.gpop{font-family:"Manrope",system-ui,sans-serif;color:#15191D;max-width:220px;line-height:1.45}
+.gpop img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;margin-bottom:8px}
+.gpop strong{display:block;margin-bottom:2px}
+.gpop a{display:inline-block;margin-top:6px;color:#2F5D62;font-weight:700;text-decoration:underline}
+.lang{display:inline-flex;flex:none;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.lang button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.8rem;font-weight:700;padding:6px 12px;border-radius:999px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+@media (max-width:1000px){
+  header .wrap{row-gap:10px}
+  .logo{order:1}
+  .lang{order:2;margin-left:auto}
+  .contact{order:3;flex:1 1 100%}
+  /* apartment page: gallery, text, then the booking box, then the map */
+  .dgrid{gap:0}
+  .dgrid>div:first-child{display:contents}
+  .dgrid .reserve{order:2;margin-top:8px}
+  .dgrid .gmap{order:3}
+}
+@media (max-width:640px){
+  .contact{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+  .contact::-webkit-scrollbar{display:none}
+  .contact>*{flex:none}
+  .hero{padding-top:28px}
+  .reserve{padding:18px}
+  .back{margin-bottom:16px}
+}
 </style>
 </head>
 <body>
 
 <header>
   <div class="wrap">
-    <a class="logo" href="#" aria-label="nook, back to homepage" title="Back to homepage">nook</a>
+    <a class="logo" href="#" aria-label="UBStay, back to homepage" title="Back to homepage">UBStay</a>
 
     <!-- CONTACT: edit the numbers below (each one can be different) -->
     <div class="contact" aria-label="Contact us">
       <span class="phone">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        +976 0000 0000
+        +976 88613199
       </span>
-      <span class="cx"><img src="images/whatsapp-com-logo.svg" alt="WhatsApp"> +976 0000 0000</span>
-      <span class="cx"><img src="images/viber-com-logo.svg" alt="Viber"> +976 0000 0000</span>
+      <span class="cx"><img src="images/whatsapp-com-logo.svg" alt="WhatsApp"> +976 88613199</span>
+      <span class="cx"><img src="images/viber-com-logo.svg" alt="Viber"> +976 88613199</span>
       <span class="cx"><img src="images/wechat-com-logo.svg" alt="WeChat"> WeChat ID</span>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true" title="English">EN</button>
+      <button type="button" data-lang="mn" aria-pressed="false" title="Монгол">MN</button>
+      <button type="button" data-lang="ru" aria-pressed="false" title="Русский">RU</button>
     </div>
   </div>
 </header>
@@ -61,10 +102,10 @@
         <div class="field"><label for="out">Check-out</label><input id="out" type="date"></div>
         <div class="field"><label for="guests">Guests</label>
           <select id="guests">
-            <option>1 guest</option>
-            <option selected>2 guests</option>
-            <option>3 guests</option>
-            <option>4+ guests</option>
+            <option value="1">1 guest</option>
+            <option value="2" selected>2 guests</option>
+            <option value="3">3 guests</option>
+            <option value="4">4+ guests</option>
           </select>
         </div>
         <button class="btn" type="button">Search stays</button>
@@ -75,8 +116,8 @@
   <section class="mapsec" id="map">
     <div class="wrap">
       <div class="head"><h2>Apartments across Ulaanbaatar</h2><p class="count">7 apartments</p></div>
-      <div id="map-canvas" role="region" aria-label="Map of apartments"></div>
-      <p class="note">Drag to move, scroll or pinch to zoom. Select a price to see the apartment.</p>
+      <div id="map-canvas" role="region" aria-label="Map of apartments"><iframe src="https://www.google.com/maps/d/embed?mid=14kePUURZyAjS998zoQlRWIEqJx-OaZs" title="Map of all apartments" style="border:0;width:100%;height:100%;display:block" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+      <p class="note">Select a pin on the map to see the apartment.</p>
     </div>
   </section>
 
@@ -287,11 +328,13 @@
 
 </main>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/mn.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/ru.js"></script>
 <script src="config.js"></script>
+<script src="i18n.js"></script>
 <script>
   // ---------- Map ----------
   const apartments = [
@@ -304,33 +347,8 @@
     { id: 'apt7', name: 'Bright & Spacious 1-bedroom, Downtown',     price: 190000, lat: 47.91258, lng: 106.89992 }
   ];
 
-  if (typeof L === 'undefined') {
-    document.getElementById('map-canvas').textContent = 'Map temporarily unavailable. Apartment listings and booking forms are still accessible below.';
-  } else {
-    const map = L.map('map-canvas', { scrollWheelZoom: false });
-    const local = location.protocol === 'file:';
-    L.tileLayer(local
-      ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'
-      : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: local ? 18 : 19,
-      attribution: local
-        ? 'Tiles &copy; Esri &mdash; Source: Esri, HERE, Garmin, OpenStreetMap contributors'
-        : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    map.on('focus', () => map.scrollWheelZoom.enable());
-    map.on('blur',  () => map.scrollWheelZoom.disable());
-    const points = apartments.map(a => {
-      const icon = L.divIcon({ className: 'price-wrap', iconSize: [0, 0], html: '<span class="price-pin">' + (a.price / 1000) + 'k ₮</span>' });
-      L.marker([a.lat, a.lng], { icon, title: a.name }).addTo(map)
-        .bindPopup('<strong>' + a.name + '</strong><br>' + a.price.toLocaleString('en-US') + ' ₮ per night<br><a href="#' + a.id + '">View apartment →</a>');
-      return [a.lat, a.lng];
-    });
-    map.fitBounds(points, { padding: [50, 50], maxZoom: 15 });
-    window.addEventListener('hashchange', () => setTimeout(() => map.invalidateSize(), 50));
-  }
-
   // ---------- Booking (Supabase) ----------
-  const cfg = window.NOOK_CONFIG || {};
+  const cfg = window.UBSTAY_CONFIG || {};
   const BANK = cfg.bank || { bank: '', holder: '', account: '' };
   const configured = /^https:\/\/[^/]+\.supabase\.co\/?$/.test(cfg.supabaseUrl || '') && !!cfg.supabaseAnonKey && !cfg.supabaseAnonKey.startsWith('YOUR_');
   const READY = configured && typeof window.supabase !== 'undefined';
@@ -458,7 +476,7 @@
       else if (showMsg) say(bad, 'err');
       btn.disabled = !READY || offline || !!bad || !a || !b;
     }
-    widgets.push({ refresh, set: (a, b, g) => {
+    widgets.push({ refresh, locale: l => { if (fpIn) { const c = l === 'en' ? 'default' : l; fpIn.set('locale', c); fpOut.set('locale', c); } }, set: (a, b, g) => {
       if (fpIn) { fpIn.setDate(a || null, false); syncPickers(a); fpOut.setDate(b || null, false); }
       else { q('.bk-in').value = a; q('.bk-out').value = b; }
       if (g <= MAXG[id]) q('.bk-g').value = g; refresh(true); } });
@@ -525,6 +543,80 @@
     });
   });
 
+  // ---------- Main map: clean satellite map with price tags ----------
+  // With googleMapsKey in config.js it uses Google Maps satellite; without a key it uses Esri satellite.
+  (function () {
+    const box = document.getElementById('map-canvas');
+    const fallback = box.innerHTML;                    // Google My Maps embed, only if both maps fail
+    const tr = s => window.I18N ? I18N.tr(s) : s;
+    const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+
+    function popContent(a, close) {
+      const card = document.querySelector('.card[href="#' + a.id + '"]');
+      const bg = card && card.querySelector('.photo').style.backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+      const el = document.createElement('div'); el.className = 'gpop';
+      if (bg) { const im = document.createElement('img'); im.src = bg[1]; im.alt = ''; el.appendChild(im); }
+      const t = document.createElement('strong'); t.textContent = card ? card.querySelector('h3').textContent : a.name;
+      const p = document.createElement('span'); p.textContent = fmt(a.price) + ' ' + tr('per night');
+      const l = document.createElement('a'); l.href = '#' + a.id; l.textContent = tr('View apartment →');
+      l.addEventListener('click', close);
+      el.append(t, p, document.createElement('br'), l);
+      return el;
+    }
+
+    function esriMap() {
+      if (typeof L === 'undefined') { box.innerHTML = fallback; return; }
+      box.innerHTML = '';
+      const map = L.map(box, { scrollWheelZoom: false, maxZoom: 18, dragging: !L.Browser.mobile });
+      map.attributionControl.setPrefix(false);
+      L.tileLayer(ESRI + 'World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18,
+        attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community' }).addTo(map);
+      L.tileLayer(ESRI + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }).addTo(map);
+      map.on('focus', () => map.scrollWheelZoom.enable());
+      map.on('blur', () => map.scrollWheelZoom.disable());
+      const pts = apartments.map(a => {
+        const icon = L.divIcon({ className: 'gpin-wrap' + (a.id === 'apt2' ? ' up' : ''), iconSize: [0, 0],
+          html: '<button type="button" class="gpin">' + (a.price / 1000) + 'k ₮</button>' });
+        L.marker([a.lat, a.lng], { icon, title: a.name }).addTo(map).on('click', () =>
+          L.popup({ offset: [0, -14], maxWidth: 240 }).setLatLng([a.lat, a.lng])
+            .setContent(popContent(a, () => map.closePopup())).openOn(map));
+        return [a.lat, a.lng];
+      });
+      map.fitBounds(pts, { padding: [50, 50], maxZoom: 16 });
+      window.addEventListener('hashchange', () => setTimeout(() => map.invalidateSize(), 50));
+    }
+
+    function googleMap(key) {
+      window.gm_authFailure = () => { box.innerHTML = ''; esriMap(); };
+      window.__UBStayMap = async () => {
+        try {
+          const { Map, InfoWindow } = await google.maps.importLibrary('maps');
+          const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+          box.innerHTML = '';
+          const map = new Map(box, { mapId: 'DEMO_MAP_ID', mapTypeId: 'hybrid', center: { lat: 47.912, lng: 106.907 }, zoom: 14,
+            gestureHandling: 'cooperative', streetViewControl: false, mapTypeControl: false, fullscreenControl: true });
+          const info = new InfoWindow();
+          const bounds = new google.maps.LatLngBounds();
+          apartments.forEach(a => {
+            const pin = document.createElement('button');
+            pin.type = 'button'; pin.className = 'gpin'; pin.textContent = (a.price / 1000) + 'k ₮';
+            if (a.id === 'apt2') pin.style.marginBottom = '34px';
+            const m = new AdvancedMarkerElement({ map, position: { lat: a.lat, lng: a.lng }, content: pin, title: a.name });
+            bounds.extend({ lat: a.lat, lng: a.lng });
+            m.addListener('click', () => { info.setContent(popContent(a, () => info.close())); info.open({ map, anchor: m }); });
+          });
+          map.fitBounds(bounds, 60);
+        } catch (e) { console.error(e); box.innerHTML = ''; esriMap(); }
+      };
+      const sc = document.createElement('script');
+      sc.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(key) + '&loading=async&v=weekly&callback=__UBStayMap';
+      sc.async = true; sc.onerror = () => { box.innerHTML = ''; esriMap(); };
+      document.head.appendChild(sc);
+    }
+
+    if (cfg.googleMapsKey) googleMap(cfg.googleMapsKey); else esriMap();
+  })();
+
   // ---------- Filters (category chips + search by dates and guests) ----------
   const chips = document.querySelectorAll('.chip');
   const cards = document.querySelectorAll('.card');
@@ -552,7 +644,7 @@
 
   document.querySelector('.book .btn').addEventListener('click', async () => {
     const a = document.getElementById('in').value, b = document.getElementById('out').value;
-    if (a && b && b <= a) return alert('Check-out must be after check-in.');
+    if (a && b && b <= a) return alert(window.I18N ? I18N.tr('Check-out must be after check-in.') : 'Check-out must be after check-in.');
     await loadBooked();
     search = { a, b, g: parseInt(document.getElementById('guests').value) };
     widgets.forEach(w => w.set(a, b, search.g));
@@ -560,6 +652,7 @@
     document.getElementById('stays').scrollIntoView({ behavior: 'smooth' });
   });
 
+  if (window.I18N) I18N.onChange(l => widgets.forEach(w => w.locale && w.locale(l)));
   loadBooked();
 </script>
 

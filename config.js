@@ -1,4 +1,4 @@
-window.NOOK_CONFIG = {
+window.UBSTAY_CONFIG = {
   // Public Supabase project URL and publishable key
   supabaseUrl: 'https://idigscreylxeyllxrndt.supabase.co',
   supabaseAnonKey: 'sb_publishable_G0kEaTGf676Q5P5alY3pRw_AadJTm1s',
